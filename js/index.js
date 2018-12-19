@@ -126,3 +126,98 @@ let liveRender = (function($){
     }
 })(Zepto);
 liveRender.init();
+
+//NEWS
+let newsRender = (function($){
+    let $newsBox = $('.newsBox'),
+        $plan = $.Callbacks(),
+        loading = false;
+
+    $plan.add(result=>{
+        $newsBox.css('display','block');
+
+        let frg = document.createDocumentFragment();
+        result.forEach(item=>{
+            let newsGroup = document.createElement('ul');
+            newsGroup.className = 'newsGroup';
+            newsGroup.setAttribute('data-isLoad','false');
+
+            let str = ``,
+                newsList = item['news'];
+            newsList.forEach(cur=>{
+                if('imgList' in cur){
+                    str += `<li class="latest"><a href="${cur.link}">
+                    <h3>${cur.title}</h3>
+                    <div>
+                        ${
+                            cur.imgList.map(img=>{
+                               return `<p><img data-src="${img}"></p>`;
+                            }).join('')
+                        }
+                    </div>
+                    <span>${cur.comment}<i class="iconfont icon-huida"></i></span>
+                </a></li>`;
+                    return;
+                }
+                str += `<li><a href="${cur.link}">
+                    <div><img data-src="${cur.src}"></div>
+                    <h3>${cur.title}</h3>
+                    <span>${cur.comment}<i class="iconfont icon-huida"></i></span>
+                </a></li>`;
+            });
+
+            newsGroup.innerHTML = str;
+            frg.appendChild(newsGroup);
+        });
+        $newsBox[0].appendChild(frg);
+        frg = null;
+        loading = false;
+    });
+    $plan.add(result=>{
+        let $newsGroup = $newsBox.find('.newsGroup[data-isLoad="false"]');
+        $newsGroup.each(function(){
+            let $this = $(this);
+            $this.attr('data-isLoad','true');
+            let lazyTimer = setTimeout(()=>{
+                $this.find('img[data-src]').each(function(index,item){
+                    let tempImg = new Image;
+                    tempImg.src = item.getAttribute('data-src');
+                    tempImg.onload = function(){
+                        item.src = this.src;
+                        item.style.opacity = 1;
+                        tempImg = null;
+                    }
+                });
+                clearTimeout(lazyTimer);
+            },500);
+        });
+    });
+    return {
+        init:function(){
+            $.ajax({
+                url:'news.json',
+                method:'get',
+                dataType:'json',
+                cache:false,
+                success:$plan.fire
+            });
+            $(window).on('scroll',function(){
+                if (loading) return;
+                let winH = document.documentElement.scrollHeight,
+                    curH = document.documentElement.clientHeight + document.documentElement.scrollTop;
+                if(curH + 50 >= winH){
+                    loading = true;
+                    //即将到底部，加载最新的数据
+                    $.ajax({
+                        url:'news.json',
+                        method:'get',
+                        dataType:'json',
+                        cache:false,
+                        success:$plan.fire
+                    });
+                }
+            });
+        }
+    }
+})(Zepto);
+newsRender.init();

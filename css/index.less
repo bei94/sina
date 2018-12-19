@@ -192,6 +192,7 @@ a{ text-decoration: none;}
 
 /*NEWS*/
 .newsBox{
+    display: none;
     background: #fff;
     padding: 0 .2rem;
     .newsGroup{
@@ -236,6 +237,34 @@ a{ text-decoration: none;}
                         font-size: .24rem;
                         margin-left: .1rem;
                         vertical-align: middle;
+                    }
+                }
+            }
+            &.latest{
+                a{
+                    h3,span{
+                        margin-left: 0;
+                    }
+                    h3{
+                        height: .48rem;
+                        .subText;
+                    }
+                    div{
+                        width: 100%;
+                        position: static;
+                        margin: .3rem 0;
+                        height: 1.24rem;
+                        background: none;
+                        p{
+                            float: left;
+                            width: 32%;
+                            height: 100%;
+                            margin-right: 2%;
+                            background: #ccc;
+                            &:nth-last-of-type(1){
+                                margin-right: 0;
+                            }
+                        }
                     }
                 }
             }
